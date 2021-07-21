@@ -1,0 +1,10 @@
+# external configuration files
+.*
+!.gitignore
+!.github/
+
+# build directories
+_*
+
+# local configuration files
+CMake.in.local.cmake
