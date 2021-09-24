@@ -75,7 +75,6 @@ LandRGraph::LandRGraph() :
   mp_Vector(nullptr), mp_Factory(geos::geom::GeometryFactory::getDefaultInstance()),
   mp_Raster(nullptr), mp_RasterPolygonized(nullptr), mp_RasterPolygonizedPolys(nullptr)
 {
-
 }
 
 
@@ -88,6 +87,7 @@ LandRGraph::LandRGraph(openfluid::core::GeoVectorValue& Val) :
   mp_Factory(geos::geom::GeometryFactory::getDefaultInstance()),
   mp_Raster(nullptr), mp_RasterPolygonized(nullptr), mp_RasterPolygonizedPolys(nullptr)
 {
+// std::cout << "LRG 1" << std::endl;
   mp_Vector = new VectorDataset(Val);
 
   if (!mp_Vector)
@@ -101,15 +101,21 @@ LandRGraph::LandRGraph(openfluid::core::GeoVectorValue& Val) :
                                               "GeoVector file must contain a \"OFLD_ID\" field");
   }
 
+// std::cout << "LRG 2" << std::endl;
   std::list<OGRFeature*>  lDuplicate=mp_Vector->hasDuplicateGeometry();
+
+// std::cout << "LRG 3" << std::endl;
   if (!lDuplicate.empty())
   {
+
+// std::cout << "LRG 4" << std::endl;
     std::ostringstream s;
     s << "error : GeoVectorValue has duplicate Geometry - OFLD_ID: ";
 
     std::list<OGRFeature*>::iterator it=lDuplicate.begin();
     std::list<OGRFeature*>::iterator ite=lDuplicate.end();
 
+// std::cout << "LRG 5" << std::endl;
     for (;it!=ite;++it)
     {
       s <<(*it)->GetFieldAsInteger("OFLD_ID")<<" ";
@@ -236,10 +242,12 @@ void LandRGraph::addEntitiesFromGeoVector()
     // c++ cast doesn't work (have to use C-style casting instead)
     geos::geom::Geometry* GeosGeom = (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(OGRGeom);
 
-    addEntity(createNewEntity(GeosGeom->clone(), Feat->GetFieldAsInteger("OFLD_ID")));
+    //std::cout << "GGptr?" << &GeosGeom << std::endl;
+    addEntity(createNewEntity(GeosGeom->clone().release(), Feat->GetFieldAsInteger("OFLD_ID"))); //FIXME
 
     // destroying the feature destroys also the associated OGRGeom
    delete GeosGeom;
+  //std::cout << "GGptr2?" << &GeosGeom << std::endl;
    OGRFeature::DestroyFeature(Feat);
   }
 
@@ -258,7 +266,7 @@ void LandRGraph::addEntitiesFromEntityList(const LandRGraph::Entities_t& Entitie
 
   for (; it != ite; ++it)
   {
-    addEntity(createNewEntity((*it)->geometry()->clone(), (*it)->getOfldId()));
+    addEntity(createNewEntity((*it)->geometry()->clone().release(), (*it)->getOfldId())); //FIXME
   }
 
   removeUnusedNodes();
@@ -533,7 +541,7 @@ std::vector<geos::geom::Polygon*>* LandRGraph::rasterPolygonizedPolys()
       // c++ cast doesn't work (have to use C-style casting instead)
       geos::geom::Geometry* GeosGeom = (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(OGRGeom);
 
-      geos::geom::Polygon* Clone = dynamic_cast<geos::geom::Polygon*>(GeosGeom->clone());
+      geos::geom::Polygon* Clone = dynamic_cast<geos::geom::Polygon*>(GeosGeom->clone().release()); //FIXME
 
       Clone->setUserData(new double(Feat->GetFieldAsDouble(PixelValFieldIndex)));
 
@@ -819,9 +827,12 @@ void LandRGraph::snapVertices(double snapTolerance)
   std::list<int>::iterator li=listOfldId.begin();
   std::list<int>::iterator lie=listOfldId.end();
 
+  int i=0;
   for (; li != lie; ++li)
   {
-    std::vector<geos::geom::Geometry*> entitiesGeoms;
+    i++;
+    //std::cout << "turn " << i << std::endl;
+    std::vector<geos::geom::Geometry*>* entitiesGeoms = new std::vector<geos::geom::Geometry*>();
     LandRGraph::Entities_t::iterator jt = m_Entities.begin();
     LandRGraph::Entities_t::iterator jte = m_Entities.end();
 
@@ -829,7 +840,7 @@ void LandRGraph::snapVertices(double snapTolerance)
     {
       if (static_cast<unsigned>(*li)!=(*jt)->getOfldId())
       {
-        entitiesGeoms.push_back(const_cast<geos::geom::Geometry*>((*jt)->geometry()));
+        entitiesGeoms->push_back(const_cast<geos::geom::Geometry*>((*jt)->geometry()));
       }
     }
 
@@ -845,7 +856,8 @@ void LandRGraph::snapVertices(double snapTolerance)
 
     removeUnusedNodes();
 
-    delete entitiesGeom;
+    //delete entitiesGeom; // causing double free?
+    //delete entitiesGeoms; // causing double free?
   }
 }
 
@@ -901,7 +913,7 @@ void LandRGraph::setAttributeFromVectorLocation(const std::string& AttributeName
     }
     else
     {
-      IntPoint=(*it)->geometry()->getInteriorPoint();
+      IntPoint=(*it)->geometry()->getInteriorPoint().release(); //FIXME
     }
 
     OGRFeature* Feat;
@@ -993,7 +1005,7 @@ void LandRGraph::setAttributeFromVectorLocation(const std::string& AttributeName
     }
     else
     {
-      IntPoint=(*it)->geometry()->getInteriorPoint();
+      IntPoint=(*it)->geometry()->getInteriorPoint().release(); //FIXME
     }
 
     OGRFeature* Feat;

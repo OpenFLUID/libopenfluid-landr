@@ -154,6 +154,8 @@ class OPENFLUID_API LineStringGraph : public LandRGraph
 
   public:
 
+    void printCurrent();
+
     /**
     @brief Creates a new LineStringGraph initialized from a core::GeoVectorValue.
     @param Val A core::GeoVectorValue which must be composed of one or many LineStrings,

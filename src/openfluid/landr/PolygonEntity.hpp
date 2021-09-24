@@ -81,6 +81,8 @@ class OPENFLUID_API PolygonEntity: public LandREntity
 
   public:
 
+    void printCurrent();
+    
     /**
       @brief A map of the PolygonEntity neighbours and their shared PolygonEdge to this PolygonEntity.
     */

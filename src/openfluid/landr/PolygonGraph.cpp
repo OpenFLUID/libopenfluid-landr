@@ -46,6 +46,7 @@
  #include <geos/geom/MultiLineString.h>
  #include <geos/geom/GeometryFactory.h>
  #include <geos/geom/Geometry.h>
+ #include <geos/operation/valid/RepeatedPointRemover.h>
  #include <geos/planargraph/DirectedEdge.h>
 
 #include <openfluid/landr/PolygonGraph.hpp>
@@ -184,6 +185,31 @@ LandRGraph::GraphType PolygonGraph::getType()
 // =====================================================================
 // =====================================================================
 
+void PolygonGraph::printCurrent()
+{
+  if (true) {return;}
+  std::cout << "= Print current" << std::endl;
+  LandRGraph::Entities_t::iterator it = m_Entities.begin();
+  LandRGraph::Entities_t::iterator ite = m_Entities.end();
+
+  int posi=0;
+  for (; it != ite; ++it)
+  {
+    std::cout << "=   Entity " << posi << std::endl;
+    posi++;
+    PolygonEntity* Poly = dynamic_cast<PolygonEntity*>(*it);
+    int posj=0;
+    for (auto Edge : Poly->m_PolyEdges)
+    {
+      std::cout << "=    Edge " << posj << std::endl;
+      std::cout << "=      " << Edge->line()->getCoordinates()->toString() << std::endl;
+      posj++;
+    }
+
+  }
+  std::cout << "= End of print current" << std::endl;
+}
+
 
 void PolygonGraph::addEntity(LandREntity* Entity)
 {
@@ -191,22 +217,25 @@ void PolygonGraph::addEntity(LandREntity* Entity)
 
   const geos::geom::Polygon* Polygon = NewEntity->polygon();
 
-  std::vector<geos::geom::Geometry*> SharedGeoms;
+  std::vector<std::unique_ptr<geos::geom::Geometry>> SharedGeoms; // FIXME can't delete at the end of the function or use unique_ptr?
 
   try
   {
     LandRGraph::Entities_t::iterator it = m_Entities.begin();
     LandRGraph::Entities_t::iterator ite = m_Entities.end();
 
+    int posi=0;
     for (; it != ite; ++it)
     {
+      posi++;
       PolygonEntity* Poly = dynamic_cast<PolygonEntity*>(*it);
       std::vector<geos::geom::LineString*> SharedLines = NewEntity->computeLineIntersectionsWith(*Poly);
 
       unsigned int iEnd=SharedLines.size();
-
+      int posj=0;
       for (unsigned int i = 0; i < iEnd; i++)
       {
+        posj++;
         geos::geom::LineString* SharedLine = SharedLines[i];
 
         PolygonEdge* SharedEdge = createEdge(*SharedLine);
@@ -216,13 +245,22 @@ void PolygonGraph::addEntity(LandREntity* Entity)
 
         removeSegment(Poly, SharedLine);
 
-        SharedGeoms.push_back(SharedLine);
+        SharedGeoms.push_back(std::move(std::unique_ptr<geos::geom::LineString>(SharedLine)));
       }
     }
+    geos::geom::MultiLineString* NewMultiShared;
+    if (SharedGeoms.size() > 0)
+    {
+      std::unique_ptr<geos::geom::MultiLineString> NewMultiSharedSmart = mp_Factory->createMultiLineString(std::forward<std::vector<std::unique_ptr<geos::geom::Geometry>>>(SharedGeoms));
+      NewMultiShared = NewMultiSharedSmart.release();
+    }
+    else
+    {
+      std::unique_ptr<geos::geom::MultiLineString> NewMultiSharedSmart = mp_Factory->createMultiLineString();
+      NewMultiShared = NewMultiSharedSmart.release();
+    }
 
-    geos::geom::MultiLineString* NewMultiShared = mp_Factory->createMultiLineString(SharedGeoms);
-
-    geos::geom::Geometry* DiffGeom = Polygon->getExteriorRing()->difference(NewMultiShared);
+    geos::geom::Geometry* DiffGeom = Polygon->getExteriorRing()->difference(NewMultiShared).release(); //FIXME release ?
 
     if (!DiffGeom->isEmpty())
     {
@@ -239,12 +277,11 @@ void PolygonGraph::addEntity(LandREntity* Entity)
         }
       }
     }
-
     m_EntitiesByOfldId[NewEntity->getOfldId()] = NewEntity;
     m_Entities.push_back(NewEntity);
 
     delete DiffGeom;
-    delete NewMultiShared;
+    //delete NewMultiShared; // generating double free
   }
   catch (openfluid::base::FrameworkException& e)
   {
@@ -276,9 +313,10 @@ PolygonEdge* PolygonGraph::createEdge(geos::geom::LineString& LineString)
     return nullptr;
   }
 
-  geos::geom::CoordinateSequence* Coordinates =
-    geos::geom::CoordinateSequence::removeRepeatedPoints(LineString.getCoordinatesRO());
-
+  /*geos::geom::CoordinateSequence* Coordinates =
+    geos::geom::CoordinateSequence::removeRepeatedPoints(LineString.getCoordinatesRO());*/
+  std::unique_ptr<geos::geom::CoordinateArraySequence> Coordinates = geos::operation::valid::RepeatedPointRemover::removeRepeatedPoints(LineString.getCoordinates().release());  //FIXME
+  // error: cannot convert ‘std::unique_ptr<geos::geom::CoordinateArraySequence>’ to ‘geos::geom::CoordinateSequence*’ in initialization
   const geos::geom::Coordinate& StartCoordinate = Coordinates->getAt(0);
   const geos::geom::Coordinate& EndCoordinate = Coordinates->getAt(Coordinates->getSize() - 1);
 
@@ -296,8 +334,6 @@ PolygonEdge* PolygonGraph::createEdge(geos::geom::LineString& LineString)
   NewEdge->setDirectedEdges(DirectedEdge0, DirectedEdge1);
 
   add(NewEdge);
-
-  delete Coordinates;
 
   return NewEdge;
 }
@@ -324,7 +360,7 @@ void PolygonGraph::removeSegment(PolygonEntity* Entity,
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION, s.str());
   }
 
-  geos::geom::Geometry* DiffGeom = OldEdge->line()->difference(Segment);
+  geos::geom::Geometry* DiffGeom = OldEdge->line()->difference(Segment).release(); //FIXME
 
   if (!DiffGeom->isEmpty())
   {
@@ -357,7 +393,7 @@ void PolygonGraph::removeSegment(PolygonEntity* Entity,
 
   remove(OldEdge);
   delete DiffGeom;
-  Entity->removeEdge(OldEdge);
+  Entity->removeEdge(OldEdge); // related but not problem generating apparently
 }
 
 
@@ -462,7 +498,7 @@ PolygonGraph::RastValByRastPoly_t PolygonGraph::computeRasterPolyOverlapping(Pol
   {
     if (RefPoly->relate(*it, "21*******"))
     {
-      geos::geom::Geometry* Inter = RefPoly->intersection(*it);
+      geos::geom::Geometry* Inter = RefPoly->intersection(*it).release(); //FIXME
       unsigned int iEnd=Inter->getNumGeometries();
 
       for (unsigned int i = 0; i < iEnd; i++)
@@ -699,6 +735,7 @@ std::vector<std::string> PolygonGraph::getEdgeAttributeNames()
 
 void PolygonGraph::removeEntity(int OfldId)
 {
+  //std::cout << "Polygon way" << std::endl;
 
   PolygonEntity* Ent = entity(OfldId);
 
@@ -733,6 +770,8 @@ void PolygonGraph::removeEntity(int OfldId)
 
     jt->first->mp_NeighboursMap->erase(Ent);
     lNeighbours.push_back(jt->first);
+
+    // TODO UNCOMMENT ALL
     std::vector<PolygonEdge*> vNeighbourEdges = jt->first->m_PolyEdges;
     std::vector<PolygonEdge*>::iterator ht = vNeighbourEdges.begin();
     std::vector<PolygonEdge*>::iterator hte = vNeighbourEdges.end();
@@ -903,7 +942,7 @@ void PolygonGraph::mergePolygonEntities(PolygonEntity& Entity,
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,"The PolygonEntities are not neighbours");
   }
 
-  geos::geom::Geometry *  NewPoly=Entity.geometry()->Union(EntityToMerge.geometry());
+  geos::geom::Geometry *  NewPoly=Entity.geometry()->Union(EntityToMerge.geometry()).release(); //FIXME
 
   int OfldId = Entity.getOfldId();
   int OfldIdToMerge = EntityToMerge.getOfldId();

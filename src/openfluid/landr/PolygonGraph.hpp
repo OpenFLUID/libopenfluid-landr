@@ -134,6 +134,8 @@ class OPENFLUID_API PolygonGraph: public LandRGraph
 
   public:
 
+    void printCurrent();
+
     /**
       @brief Creates a new PolygonGraph initialized from a core::GeoVectorValue.
       @details Val must be composed of one or many Polygons, and each of them must contain a "OFLD_ID" attribute.

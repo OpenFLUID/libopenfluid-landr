@@ -63,10 +63,9 @@
 // =====================================================================
 // =====================================================================
 
-
 BOOST_AUTO_TEST_CASE(check_constructor)
 {
-  openfluid::core::GeoRasterValue Value(CONFIGTESTS_DATA_INPUT_DIR,"landr/dem.jpeg");
+  openfluid::core::GeoRasterValue Value(CONFIGTESTS_DATA_INPUT_DIR + "/landr/","dem.jpeg");
 
   openfluid::landr::RasterDataset* Rast = new openfluid::landr::RasterDataset(Value);
 
@@ -310,7 +309,6 @@ BOOST_AUTO_TEST_CASE(check_envelope)
   delete Rast;
 
 }
-
 
 // =====================================================================
 // =====================================================================

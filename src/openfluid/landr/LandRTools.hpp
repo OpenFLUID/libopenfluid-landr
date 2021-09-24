@@ -222,6 +222,8 @@ class OPENFLUID_API LandRTools
     */
      static bool isExtentsIntersect(std::vector<OGREnvelope> vEnvelope);
 
+    /*template<typename T>
+    static geos::geom::CoordinateArraySequence ArrayFromCoordinates(const T& GeomPtr);*/
 
 };
 

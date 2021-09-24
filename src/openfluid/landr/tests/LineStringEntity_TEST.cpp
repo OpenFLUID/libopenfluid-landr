@@ -66,7 +66,7 @@
 
 BOOST_AUTO_TEST_CASE(check_construction)
 {
-  openfluid::core::GeoVectorValue Val(CONFIGTESTS_DATA_INPUT_DIR + "/landr","RS.shp");
+  openfluid::core::GeoVectorValue Val(CONFIGTESTS_DATA_INPUT_DIR + "/landr/","RS.shp");
 
   openfluid::landr::VectorDataset* Vect = new openfluid::landr::VectorDataset(Val);
 
@@ -77,10 +77,11 @@ BOOST_AUTO_TEST_CASE(check_construction)
   geos::geom::Geometry* GeosGeom = (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(OGRGeom);
 
   openfluid::landr::LineStringEntity* Entity =
-      new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone()),
-                                             FirstFeature->GetFieldAsInteger("OFLD_ID"));
+      new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone().release()),
+                                             FirstFeature->GetFieldAsInteger("OFLD_ID")); //FIXME
 
-  BOOST_CHECK_EQUAL(Val.getType(),openfluid::core::UnstructuredValue::UnstructuredType::VECTOR);
+  BOOST_CHECK_EQUAL(static_cast<int>(Val.getType()),
+                    static_cast<int>(openfluid::core::UnstructuredValue::UnstructuredType::VECTOR)); //FIXME
 
   BOOST_CHECK(Entity->line()->equals(GeosGeom));
 
@@ -100,7 +101,7 @@ BOOST_AUTO_TEST_CASE(check_construction)
 
 BOOST_AUTO_TEST_CASE(check_clone)
 {
-  openfluid::core::GeoVectorValue Val(CONFIGTESTS_DATA_INPUT_DIR + "/landr","RS.shp");
+  openfluid::core::GeoVectorValue Val(CONFIGTESTS_DATA_INPUT_DIR + "/landr/","RS.shp");
 
   openfluid::landr::VectorDataset* Vect = new openfluid::landr::VectorDataset(Val);
 
@@ -110,7 +111,7 @@ BOOST_AUTO_TEST_CASE(check_clone)
   geos::geom::Geometry* GeosGeom = (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(OGRGeom);
 
   openfluid::landr::LineStringEntity* Entity =
-      new openfluid::landr::LineStringEntity(GeosGeom->clone(), FirstFeature->GetFieldAsInteger("OFLD_ID"));
+      new openfluid::landr::LineStringEntity(GeosGeom->clone().release(), FirstFeature->GetFieldAsInteger("OFLD_ID")); //FIXME
 
   OGRFeature::DestroyFeature(FirstFeature);
   delete GeosGeom;
@@ -140,7 +141,7 @@ BOOST_AUTO_TEST_CASE(check_clone)
 BOOST_AUTO_TEST_CASE(check_nodes)
 {
   openfluid::core::GeoVectorValue* Val =
-    new openfluid::core::GeoVectorValue(CONFIGTESTS_DATA_INPUT_DIR + "/landr", "RS.shp");
+    new openfluid::core::GeoVectorValue(CONFIGTESTS_DATA_INPUT_DIR + "/landr/", "RS.shp");
 
   openfluid::landr::LineStringGraph* Graph = openfluid::landr::LineStringGraph::create(*Val);
 
@@ -167,7 +168,7 @@ BOOST_AUTO_TEST_CASE(check_nodes)
 BOOST_AUTO_TEST_CASE(check_LineOrientNeighbours)
 {
   openfluid::core::GeoVectorValue* Val =
-    new openfluid::core::GeoVectorValue(CONFIGTESTS_DATA_INPUT_DIR + "/landr", "RS.shp");
+    new openfluid::core::GeoVectorValue(CONFIGTESTS_DATA_INPUT_DIR + "/landr/", "RS.shp");
 
   openfluid::landr::LineStringGraph* Graph = openfluid::landr::LineStringGraph::create(*Val);
 
@@ -219,7 +220,7 @@ BOOST_AUTO_TEST_CASE(check_LineOrientNeighbours)
 BOOST_AUTO_TEST_CASE(check_Neighbours)
 {
   openfluid::core::GeoVectorValue* Val =
-    new openfluid::core::GeoVectorValue( CONFIGTESTS_DATA_INPUT_DIR + "/landr", "RS.shp");
+    new openfluid::core::GeoVectorValue(CONFIGTESTS_DATA_INPUT_DIR + "/landr/", "RS.shp");
 
   openfluid::landr::LineStringGraph* Graph = openfluid::landr::LineStringGraph::create(*Val);
 
@@ -246,7 +247,7 @@ BOOST_AUTO_TEST_CASE(check_Neighbours)
 BOOST_AUTO_TEST_CASE(check_getLineNeighboursDegree2)
 {
   openfluid::core::GeoVectorValue* Val =
-    new openfluid::core::GeoVectorValue(CONFIGTESTS_DATA_INPUT_DIR + "/landr", "LineToMerge.shp");
+    new openfluid::core::GeoVectorValue(CONFIGTESTS_DATA_INPUT_DIR + "/landr/", "LineToMerge.shp");
 
   openfluid::landr::LineStringGraph* Graph = openfluid::landr::LineStringGraph::create(*Val);
 
