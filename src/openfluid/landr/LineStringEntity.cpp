@@ -97,7 +97,7 @@ LineStringEntity::~LineStringEntity()
 
 LineStringEntity* LineStringEntity::clone()
 {
-  return new LineStringEntity(mp_Geom->clone().release(), m_OfldId); //FIXME
+  return new LineStringEntity(mp_Geom->clone().release(), m_OfldId);
 }
 
 

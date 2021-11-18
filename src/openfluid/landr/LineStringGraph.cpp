@@ -168,9 +168,7 @@ void LineStringGraph::addEntity(LandREntity* Entity)
 
   const geos::geom::LineString* LineString = Edge->line();
 
-  /*geos::geom::CoordinateSequence* Coordinates =
-      geos::geom::CoordinateSequence::removeRepeatedPoints(LineString->getCoordinatesRO());*/ //FIXME
-  geos::geom::CoordinateSequence* Coordinates = geos::operation::valid::RepeatedPointRemover::removeRepeatedPoints(LineString->getCoordinates().get()).release(); // FIXME
+  geos::geom::CoordinateSequence* Coordinates = geos::operation::valid::RepeatedPointRemover::removeRepeatedPoints(LineString->getCoordinates().get()).release();
 
   const geos::geom::Coordinate& StartCoordinate = Coordinates->getAt(0);
   const geos::geom::Coordinate& EndCoordinate = Coordinates->getAt(Coordinates->getSize() - 1);
@@ -212,7 +210,6 @@ LandREntity* LineStringGraph::createNewEntity(const geos::geom::Geometry* Geom,
 
 void LineStringGraph::removeEntity(int OfldId)
 {
-  //std::cout << "LS way" << std::endl;
   LineStringEntity* Ent = entity(OfldId);
 
   if (!Ent)
@@ -373,6 +370,10 @@ void LineStringGraph::setAttributeFromRasterValueAtStartNode(const std::string& 
 }
 
 
+// =====================================================================
+// =====================================================================
+
+
 void LineStringGraph::printCurrent()
 {
   if (false) {return;}
@@ -390,7 +391,6 @@ void LineStringGraph::printCurrent()
   }
   std::cout << "= End of print current line" << std::endl;
 }
-
 
 
 // =====================================================================
@@ -429,7 +429,7 @@ void LineStringGraph::setAttributeFromRasterValueAtEndNode(const std::string& At
 void LineStringGraph::reverseLineStringEntity(LineStringEntity& Entity)
 {
   const geos::geom::LineString* Ent=Entity.line();
-  geos::geom::Geometry* ReverseEnt=Ent->reverse().release(); //FIXME
+  geos::geom::Geometry* ReverseEnt=Ent->reverse().release();
 
   LandREntity* LandEnt = dynamic_cast<LandREntity*>(&Entity);
   int OfldId = LandEnt->getOfldId();
@@ -597,38 +597,29 @@ void LineStringGraph::mergeLineStringEntities(LineStringEntity& Entity,
 
   if ((EndNode->getCoordinate()).equals(StartNode2->getCoordinate()))
   {
-    //geos::geom::CoordinateArraySequence(*(CurrentPolygon->getCoordinates().release())).toVector(vCoorCurrentGeom); //FIXME
-    /*CoordsOne = *openfluid::landr::LandRTools::ArrayFromCoordinates<geos::geom::LineString>(Entity.line()); //FIXME
-    CoordsTwo = *openfluid::landr::LandRTools::ArrayFromCoordinates<geos::geom::LineString>(EntityToMerge.line()); //FIXME*/
     CoordsOne = geos::geom::CoordinateArraySequence(*(Entity.line()->getCoordinates().release()));
     CoordsTwo = geos::geom::CoordinateArraySequence(*(EntityToMerge.line()->getCoordinates().release()));
-    CoordsOne.add(CoordsTwo.clone().release(),false,true); //FIXME
+    CoordsOne.add(CoordsTwo.clone().release(),false,true);
   }
   else if ((StartNode->getCoordinate()).equals(EndNode2->getCoordinate()))
   {
-    /*CoordsOne = *openfluid::landr::LandRTools::ArrayFromCoordinates<geos::geom::LineString>(EntityToMerge.line()); //FIXME
-    CoordsTwo = *openfluid::landr::LandRTools::ArrayFromCoordinates<geos::geom::LineString>(Entity.line()); //FIXME*/
     CoordsOne = geos::geom::CoordinateArraySequence(*(EntityToMerge.line()->getCoordinates().release()));
     CoordsTwo = geos::geom::CoordinateArraySequence(*(Entity.line()->getCoordinates().release()));
-    CoordsOne.add(CoordsTwo.clone().release(),false,true); //FIXME
+    CoordsOne.add(CoordsTwo.clone().release(),false,true);
   }
   else if ((EndNode->getCoordinate()).equals(EndNode2->getCoordinate()))
   {
-    /*CoordsOne = *openfluid::landr::LandRTools::ArrayFromCoordinates<geos::geom::LineString>(Entity.line()); //FIXME
-    CoordsTwo = *openfluid::landr::LandRTools::ArrayFromCoordinates<geos::geom::LineString>(EntityToMerge.line()); //FIXME*/
     CoordsOne = geos::geom::CoordinateArraySequence(*(Entity.line()->getCoordinates().release()));
     CoordsTwo = geos::geom::CoordinateArraySequence(*(EntityToMerge.line()->getCoordinates().release()));
-    CoordsOne.add(CoordsTwo.clone().release(),false,false); //FIXME
+    CoordsOne.add(CoordsTwo.clone().release(),false,false);
   }
   else if ((StartNode->getCoordinate()).equals(StartNode2->getCoordinate()))
   {
     reverseLineStringEntity(EntityToMerge);
 
-    /*CoordsOne = (EntityToMerge.line())->getCoordinates().get(); //FIXME
-    CoordsTwo = (Entity.line())->getCoordinates().get(); //FIXME*/
     CoordsOne = geos::geom::CoordinateArraySequence(*(EntityToMerge.line()->getCoordinates().get()));
     CoordsTwo = geos::geom::CoordinateArraySequence(*(Entity.line()->getCoordinates().get()));
-    CoordsOne.add(CoordsTwo.clone().release(),false,true); //FIXME
+    CoordsOne.add(CoordsTwo.clone().release(),false,true);
   }
 
   geos::geom::LineString* NewLine=mp_Factory->createLineString(CoordsOne.clone().release());
@@ -869,7 +860,7 @@ void LineStringGraph::mergeLineStringEntitiesByMinLength(double MinLength,bool r
       }
 
     }
-    //TODO change this part to improve speed : just remove from the list the Entity and the Entity to Merge if necessary
+    // TODO change this part to improve speed : just remove from the list the Entity and the Entity to Merge if necessary
     mOrderedLength.clear();
     mOrderedLength=getLineStringEntitiesByMinLength(MinLength,rmDangle);
   }

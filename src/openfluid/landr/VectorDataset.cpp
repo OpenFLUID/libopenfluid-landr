@@ -592,13 +592,10 @@ bool VectorDataset::isIntValueSet(const std::string& FieldName,
 
 VectorDataset::FeaturesList_t VectorDataset::features(unsigned int LayerIndex)
 {
-  // std::cout << "FT 1" << std::endl;
   if (!m_Features.count(LayerIndex))
   {
-    // std::cout << "FT 1.1" << std::endl;
     parse(LayerIndex);
   }
-  // std::cout << "FT 2" << std::endl;
 
   return m_Features.at(LayerIndex);
 }
@@ -628,7 +625,7 @@ void VectorDataset::parse(unsigned int LayerIndex)
 {
   std::vector<geos::geom::Geometry*>* Geoms = new std::vector<geos::geom::Geometry*>();
 
-  // TODO move to... ?
+  // TODO Should this line be moved?
   setlocale(LC_NUMERIC, "C");
 
   OGRLayer* Layer = layer(LayerIndex);
@@ -670,7 +667,7 @@ void VectorDataset::parse(unsigned int LayerIndex)
                                                 GeosGeom->toString());
     }
 
-    geos::geom::Geometry* GeomClone = GeosGeom->clone().release(); //FIXME
+    geos::geom::Geometry* GeomClone = GeosGeom->clone().release();
     OGRFeature* FeatClone = Feat->Clone();
 
     Geoms->push_back(GeomClone);
@@ -686,7 +683,7 @@ void VectorDataset::parse(unsigned int LayerIndex)
   // (because the boundaries of any two Polygons of a valid MultiPolygon may touch,
   //*but only at a finite number of points*)
   geos::geom::GeometryCollection* GTMP = geos::geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(Geoms);
-  m_Geometries.insert(std::make_pair(LayerIndex,GTMP)); //FIXME
+  m_Geometries.insert(std::make_pair(LayerIndex,GTMP));
 
   geos::operation::valid::IsValidOp ValidOpColl(m_Geometries.at(LayerIndex));
 
@@ -808,13 +805,13 @@ void VectorDataset::snapLineNodes(double Threshold,unsigned int LayerIndex)
       {
         geos::geom::LineString *Line =
             dynamic_cast<geos::geom::LineString*>(const_cast<geos::geom::Geometry*>(Geom->getGeometryN(i)));
-        vPoints.push_back(Line->getStartPoint().release()); //FIXME
-        vPoints.push_back(Line->getEndPoint().release()); //FIXME
+        vPoints.push_back(Line->getStartPoint().release());
+        vPoints.push_back(Line->getEndPoint().release());
       }
     }
 
-    geos::geom::Point* PStart = CurrentLine->getStartPoint().release(); //FIXME
-    geos::geom::Point* PEnd = CurrentLine->getEndPoint().release(); //FIXME
+    geos::geom::Point* PStart = CurrentLine->getStartPoint().release();
+    geos::geom::Point* PEnd = CurrentLine->getEndPoint().release();
     geos::geom::Point* NewPStart = nullptr;
     geos::geom::Point* NewPEnd = nullptr;
 
@@ -835,7 +832,7 @@ void VectorDataset::snapLineNodes(double Threshold,unsigned int LayerIndex)
       continue;  // TODO to be replaced!
     }
 
-    geos::geom::CoordinateSequence* CoordSeq=CurrentLine->getCoordinates().release(); //FIXME
+    geos::geom::CoordinateSequence* CoordSeq=CurrentLine->getCoordinates().release();
     if (NewPStart)
     {
       CoordSeq->setAt(*NewPStart->getCoordinate(),0);
@@ -851,7 +848,7 @@ void VectorDataset::snapLineNodes(double Threshold,unsigned int LayerIndex)
       openfluid::landr::convertGEOSGeometryToOGR((GEOSGeom) dynamic_cast<geos::geom::Geometry*>(NewLine));
     OGRFeature* OGRFeat = (*it).first;
     OGRFeat->SetGeometry(OGRGeom);
-    geos::geom::Geometry* NewLineClone = NewLine->clone().release(); //FIXME
+    geos::geom::Geometry* NewLineClone = NewLine->clone().release();
     OGRFeature* OGRFeatClone = OGRFeat->Clone();
     (*it) = std::make_pair<OGRFeature*, geos::geom::Geometry*>
     (dynamic_cast<OGRFeature *>(OGRFeat), dynamic_cast<geos::geom::Geometry*>(NewLineClone));
@@ -889,9 +886,8 @@ void VectorDataset::snapPolygonVertices(double Threshold,unsigned int LayerIndex
 
   for (FeaturesList_t::iterator it = Features.begin(); it != Features.end(); ++it)
   {
-
+    // FIXME Crashes may happen here
     geos::geom::Geometry* Geom = geometries();
-    // TODO BUG HERE --v
     geos::geom::Polygon* CurrentPolygon = (dynamic_cast<geos::geom::Polygon*>((*it).second));
 
     // get a vector of the Coordinates of the vertices of all Geometries
@@ -909,34 +905,23 @@ void VectorDataset::snapPolygonVertices(double Threshold,unsigned int LayerIndex
 
         if (Polygon)
         {
-          /* PREVIOUSLY 
-          const std::vector<geos::geom::Coordinate> *vCoorPoly = Polygon->getCoordinates()->toVector();
-          vCoor.insert( vCoor.end(), vCoorPoly->begin(), vCoorPoly->end() );
-          delete vCoorPoly;
-          */
-
-          //const std::vector<geos::geom::Coordinate>* vCoorPoly = 
-          geos::geom::CoordinateArraySequence(*(Polygon->getCoordinates().get())).toVector(vCoor); //FIXME not sure for release
-          //std::vector<geos::geom::Coordinate> vCoorPoly; //FIXME
-          //Polygon->getCoordinates()->toVector(vCoorPoly); //FIXME
-          //vCoor.insert( vCoor.end(), vCoorPoly.begin(), vCoorPoly.end() ); //FIXME
+          geos::geom::CoordinateArraySequence(*(Polygon->getCoordinates().get())).toVector(vCoor);
         }
         delete Polygon;
       }
     }
 
     std::vector<geos::geom::Coordinate> vCoorCurrentGeom;
-    geos::geom::CoordinateArraySequence(*(CurrentPolygon->getCoordinates().get())).toVector(vCoorCurrentGeom); //FIXME
-    //std::vector<geos::geom::Coordinate> vCoorCurrentGeom; //FIXME
-    //CurrentPolygon->getCoordinates()->toVector(vCoorCurrentGeom); //FIXME
-    geos::geom::CoordinateSequence* CoordSeq = CurrentPolygon->getCoordinates().release(); //FIXME
-    for (unsigned int j = 0; j < vCoorCurrentGeom.size(); j++) //FIXME
+    geos::geom::CoordinateArraySequence(*(CurrentPolygon->getCoordinates().get())).toVector(vCoorCurrentGeom);
+
+    geos::geom::CoordinateSequence* CoordSeq = CurrentPolygon->getCoordinates().release();
+    for (unsigned int j = 0; j < vCoorCurrentGeom.size(); j++)
     {
       for (unsigned int h = 0; h < vCoor.size(); h++)
       {
-        if (!vCoorCurrentGeom.at(j).equals(vCoor.at(h)) && //FIXME
-            vCoorCurrentGeom.at(j).distance(vCoor.at(h)) > 0 && //FIXME
-            vCoorCurrentGeom.at(j).distance(vCoor.at(h)) < Threshold) //FIXME
+        if (!vCoorCurrentGeom.at(j).equals(vCoor.at(h)) &&
+            vCoorCurrentGeom.at(j).distance(vCoor.at(h)) > 0 &&
+            vCoorCurrentGeom.at(j).distance(vCoor.at(h)) < Threshold)
         {
           CoordSeq->setAt(vCoor.at(h),j);
         }
@@ -952,7 +937,7 @@ void VectorDataset::snapPolygonVertices(double Threshold,unsigned int LayerIndex
 
     OGRFeat->SetGeometry(OGRGeom);
     OGRFeature* OGRFeatClone = OGRFeat->Clone();
-    geos::geom::Geometry* NewPolygonClone = NewPolygon->clone().release(); //FIXME
+    geos::geom::Geometry* NewPolygonClone = NewPolygon->clone().release();
     (*it) = std::make_pair<OGRFeature*, geos::geom::Geometry*>
     (dynamic_cast<OGRFeature *>(OGRFeatClone), dynamic_cast<geos::geom::Geometry*>(NewPolygonClone));
 
@@ -961,7 +946,6 @@ void VectorDataset::snapPolygonVertices(double Threshold,unsigned int LayerIndex
     OGRFeature::DestroyFeature(OGRFeatClone);
     delete NewPolygonClone;
     delete CoordSeq;
-    //delete vCoorCurrentGeom; //FIXME
     delete CurrentPolygon;
 
     m_Geometries.clear();
@@ -991,7 +975,8 @@ std::string VectorDataset::checkTopology(double Threshold, unsigned int LayerInd
   }
 
   std::string ErrorMsg;
-  // TODO move to... ?
+
+  // TODO Should this line be moved?
   setlocale(LC_NUMERIC, "C");
 
   OGRLayer* Layer = layer(LayerIndex);
@@ -1168,7 +1153,7 @@ void VectorDataset::cleanOverlap(double Threshold, unsigned int LayerIndex)
     geos::geom::Geometry* Geom2 =
         (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(Feat2->GetGeometryRef());
 
-    geos::geom::Geometry * Diff= Geom1->difference(Geom2).release(); //FIXME
+    geos::geom::Geometry * Diff= Geom1->difference(Geom2).release();
 
     // snap Diff with Geom2
     geos::operation::overlay::snap::GeometrySnapper geomSnapper(*const_cast<geos::geom::Geometry*>(Geom2));
@@ -1233,17 +1218,15 @@ void VectorDataset::cleanOverlap(double Threshold, unsigned int LayerIndex)
 
 std::list<OGRFeature*> VectorDataset::hasDuplicateGeometry(unsigned int LayerIndex)
 {
-// std::cout << "HDG 0" << std::endl;
   std::list<OGRFeature*> lDuplicate;
-  // std::cout << "HDG 0.1" << std::endl;
   FeaturesList_t Features = features(LayerIndex);
-// std::cout << "HDG 1" << std::endl;
+
   for (FeaturesList_t::iterator it = Features.begin(); it != Features.end(); ++it)
   {
     geos::geom::Geometry* Geom = geometries();
     unsigned int iEnd = Geom->getNumGeometries();
     int DuplicateGeom = 0;
-// std::cout << "HDG 2" << std::endl;
+
     for (unsigned int i = 0; i < iEnd; i++)
     {
       if ((const_cast<geos::geom::Geometry*>(Geom->getGeometryN(i)))->equals((*it).second))
@@ -1251,7 +1234,7 @@ std::list<OGRFeature*> VectorDataset::hasDuplicateGeometry(unsigned int LayerInd
         DuplicateGeom++;
       }
     }
-// std::cout << "HDG 3" << std::endl;
+
     if (DuplicateGeom > 1)
     {
       lDuplicate.push_back((*it).first);

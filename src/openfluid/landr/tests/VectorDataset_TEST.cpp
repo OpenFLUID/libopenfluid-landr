@@ -503,11 +503,12 @@ BOOST_AUTO_TEST_CASE(check_snapVertices)
 
   std::list<std::pair<OGRFeature*, OGRFeature*> > lGap=VectSU->findGap(2);
   BOOST_CHECK_EQUAL(lGap.size(),2);
-  /*VectSU->snapVertices(2);
+  
+  VectSU->snapVertices(2);
   lGap.clear();
   lGap=VectSU->findGap(2);
-  BOOST_CHECK_EQUAL(lGap.size(),0);*/ //TODO FIXME REENABLE THIS
-
+  BOOST_CHECK_EQUAL(lGap.size(),0);
+  
   delete VectSU;
 }
 
@@ -527,7 +528,7 @@ BOOST_AUTO_TEST_CASE(check_Overlap_and_Snap_Polygon)
   std::list<std::pair<OGRFeature*, OGRFeature*>> lOverlap=VectSU->findOverlap();
   BOOST_CHECK_EQUAL(lOverlap.size(),1);
 
-  //VectSU->snapVertices(3);  //TODO FIXME REENABLE THIS
+  VectSU->snapVertices(3);
   VectSU->cleanOverlap(2);
 
   lGap.clear();

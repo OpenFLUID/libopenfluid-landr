@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(check_construction_fromEntityVector)
 
     openfluid::landr::LandREntity* Entity =
         new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone().release()),
-                                               Feat->GetFieldAsInteger("OFLD_ID")); //FIXME
+                                               Feat->GetFieldAsInteger("OFLD_ID"));
 
     Entities.push_back(Entity);
 
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(check_cloneFromEntityVector)
 
     openfluid::landr::LandREntity* Entity =
         new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone().release()),
-                                               Feat->GetFieldAsInteger("OFLD_ID")); //FIXME
+                                               Feat->GetFieldAsInteger("OFLD_ID"));
 
     Entities.push_back(Entity);
 
@@ -168,40 +168,10 @@ BOOST_AUTO_TEST_CASE(check_cloneFromEntityVector)
 
   openfluid::landr::LineStringGraph* Graph = openfluid::landr::LineStringGraph::create(Entities);
 
-  //  openfluid::landr::LineStringGraph* Copy = Graph->clone();
-  //
-  //  BOOST_CHECK_EQUAL(Graph->getSize(), Copy->getSize());
-  //  BOOST_CHECK_EQUAL(Graph->getEdges()->size(), Copy->getEdges()->size());
-  //  BOOST_CHECK_EQUAL(Graph->getEntities().size(), Copy->getEntities().size());
 
   delete Graph;
-  //  delete Copy;
   delete Vect;
 }
-
-
-// =====================================================================
-// =====================================================================
-
-
-//BOOST_AUTO_TEST_CASE(check_clone)
-//{
-//  openfluid::core::GeoVectorValue* Val = new openfluid::core::GeoVectorValue(
-//      CONFIGTESTS_DATA_INPUT_DIR + "/landr/", "RS.shp");
-//
-//  openfluid::landr::LineStringGraph* Graph =
-//      openfluid::landr::LineStringGraph::create(*Val);
-//
-//  openfluid::landr::LineStringGraph* Copy = Graph->clone();
-//
-//  BOOST_CHECK_EQUAL(Graph->getSize(), Copy->getSize());
-//  BOOST_CHECK_EQUAL(Graph->getEdges()->size(), Copy->getEdges()->size());
-//  BOOST_CHECK_EQUAL(Graph->getEntities().size(), Copy->getEntities().size());
-//
-//  delete Graph;
-//  delete Copy;
-//  delete Val;
-//}
 
 
 // =====================================================================

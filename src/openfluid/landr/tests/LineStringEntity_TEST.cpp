@@ -78,14 +78,12 @@ BOOST_AUTO_TEST_CASE(check_construction)
 
   openfluid::landr::LineStringEntity* Entity =
       new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone().release()),
-                                             FirstFeature->GetFieldAsInteger("OFLD_ID")); //FIXME
+                                             FirstFeature->GetFieldAsInteger("OFLD_ID"));
 
   BOOST_CHECK_EQUAL(static_cast<int>(Val.getType()),
-                    static_cast<int>(openfluid::core::UnstructuredValue::UnstructuredType::VECTOR)); //FIXME
+                    static_cast<int>(openfluid::core::UnstructuredValue::UnstructuredType::VECTOR));
 
   BOOST_CHECK(Entity->line()->equals(GeosGeom));
-
-//  BOOST_CHECK(Entity->getFeature()->Equal(FirstFeature));
 
   BOOST_CHECK_EQUAL(Entity->getOfldId(), 5);
 
@@ -111,7 +109,7 @@ BOOST_AUTO_TEST_CASE(check_clone)
   geos::geom::Geometry* GeosGeom = (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(OGRGeom);
 
   openfluid::landr::LineStringEntity* Entity =
-      new openfluid::landr::LineStringEntity(GeosGeom->clone().release(), FirstFeature->GetFieldAsInteger("OFLD_ID")); //FIXME
+      new openfluid::landr::LineStringEntity(GeosGeom->clone().release(), FirstFeature->GetFieldAsInteger("OFLD_ID"));
 
   OGRFeature::DestroyFeature(FirstFeature);
   delete GeosGeom;

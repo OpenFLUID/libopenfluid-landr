@@ -82,28 +82,21 @@ BOOST_AUTO_TEST_CASE(check_MergesWith1ResultLine)
 
   std::unique_ptr<std::vector<geos::geom::Geometry*>> Geoms = std::make_unique<std::vector<geos::geom::Geometry*>>();
 
-  /*std::vector<geos::geom::Coordinate> Coos1;
-  Coos1.push_back(geos::geom::Coordinate(0, 1));
-  Coos1.push_back(geos::geom::Coordinate(0, 2));
-  std::unique_ptr<geos::geom::CoordinateSequence> CS = SeqFactory.create(&Coos1);*/ 
-  // call via '&' not working
-  /*std::unique_ptr<std::vector<geos::geom::Coordinate>> Coos1 = std::make_unique<std::vector<geos::geom::Coordinate>>();
+  std::unique_ptr<std::vector<geos::geom::Coordinate>> Coos1 = std::make_unique<std::vector<geos::geom::Coordinate>>();
   Coos1->push_back(geos::geom::Coordinate(0, 1));
   Coos1->push_back(geos::geom::Coordinate(0, 2));
-  geos::geom::LineString* LS1 = Factory->createLineString(std::move(SeqFactory.create(Coos1.get()))).release(); //.release()FIXME
+  geos::geom::LineString* LS1 = Factory->createLineString(std::move(SeqFactory.create(Coos1.get()))).release();
 
-  std::cout << "ALO?" << std::endl;
-
-  std::unique_ptr<std::vector<geos::geom::Coordinate>> Coos0=std::make_unique<std::vector<geos::geom::Coordinate>>(); //TODO REPRENDRE ICI, BUG TRES LOUCHE
+  std::unique_ptr<std::vector<geos::geom::Coordinate>> Coos0 = std::make_unique<std::vector<geos::geom::Coordinate>>();
   Coos0->push_back(geos::geom::Coordinate(0, 0));
   Coos0->push_back(geos::geom::Coordinate(0, 1));
-  geos::geom::LineString* LS2 = Factory->createLineString(std::move(SeqFactory.create(Coos0.get()))).release(); //FIXME
+  geos::geom::LineString* LS2 = Factory->createLineString(std::move(SeqFactory.create(Coos0.get()))).release();
   
   Geoms->push_back(LS1);
   
   Geoms->push_back(LS2);
 
-  geos::geom::MultiLineString* MLS = Factory->createMultiLineString(Geoms.get()); //FIXME
+  geos::geom::MultiLineString* MLS = Factory->createMultiLineString(Geoms.get());
 
   BOOST_CHECK_EQUAL(MLS->getNumGeometries(), 2);
 
@@ -122,7 +115,7 @@ BOOST_AUTO_TEST_CASE(check_MergesWith1ResultLine)
 
   delete MLS;
   delete MergedLSVect;
-  delete MergedLS;*/
+  delete MergedLS;
 }
 
 
@@ -140,28 +133,28 @@ BOOST_AUTO_TEST_CASE(check_MergesWith2ResultLines)
   std::vector<geos::geom::Coordinate> Coos1;
   Coos1.push_back(geos::geom::Coordinate(0, 1));
   Coos1.push_back(geos::geom::Coordinate(0, 2));
-  auto LS1 = Factory->createLineString(SeqFactory.create(&Coos1)); //FIXME
+  auto LS1 = Factory->createLineString(SeqFactory.create(&Coos1));
   Geoms.push_back(LS1.release());
 
   std::vector<geos::geom::Coordinate> Coos4;
   Coos4.push_back(geos::geom::Coordinate(0, 4));
   Coos4.push_back(geos::geom::Coordinate(0, 5));
-  geos::geom::LineString* LS4 = Factory->createLineString(SeqFactory.create(&Coos4)).release(); //FIXME
+  geos::geom::LineString* LS4 = Factory->createLineString(SeqFactory.create(&Coos4)).release();
   Geoms.push_back(LS4);
 
   std::vector<geos::geom::Coordinate> Coos0;
   Coos0.push_back(geos::geom::Coordinate(0, 0));
   Coos0.push_back(geos::geom::Coordinate(0, 1));
-  geos::geom::LineString* LS2 = Factory->createLineString(SeqFactory.create(&Coos0)).release(); //FIXME
+  geos::geom::LineString* LS2 = Factory->createLineString(SeqFactory.create(&Coos0)).release();
   Geoms.push_back(LS2);
 
   std::vector<geos::geom::Coordinate> Coos3;
   Coos3.push_back(geos::geom::Coordinate(0, 3));
   Coos3.push_back(geos::geom::Coordinate(0, 4));
-  geos::geom::LineString* LS3 = Factory->createLineString(SeqFactory.create(&Coos3)).release(); //FIXME
+  geos::geom::LineString* LS3 = Factory->createLineString(SeqFactory.create(&Coos3)).release();
   Geoms.push_back(LS3);
 
-  geos::geom::MultiLineString* MLS = Factory->createMultiLineString(&Geoms); //FIXME
+  geos::geom::MultiLineString* MLS = Factory->createMultiLineString(&Geoms);
 
   BOOST_CHECK_EQUAL(MLS->getNumGeometries(), 4);
 
@@ -276,14 +269,12 @@ BOOST_AUTO_TEST_CASE(check_computeNodedLines_simple)
 
   const geos::geom::GeometryFactory* Factory = geos::geom::GeometryFactory::getDefaultInstance();
 
-  geos::geom::Geometry* SU_coll = Factory->buildGeometry(&SU_vect); //FIXME
-  geos::geom::Geometry* RS_coll = Factory->buildGeometry(&RS_vect); //FIXME
+  geos::geom::Geometry* SU_coll = Factory->buildGeometry(&SU_vect);
+  geos::geom::Geometry* RS_coll = Factory->buildGeometry(&RS_vect);
 
   std::vector<geos::geom::LineString*>* Noded = openfluid::landr::LandRTools::computeNodedLines(SU_coll, RS_coll);
 
   BOOST_CHECK_EQUAL(Noded->size(), 17);
-//  for (unsigned int i = 0; i < Noded->size(); i++)
-//    std::cout << Noded->at(i)->toString() << std::endl;
 
   delete VectSU;
   delete VectRS;
@@ -315,8 +306,8 @@ BOOST_AUTO_TEST_CASE(check_getPolygonizedGeometry_simple)
 
   const geos::geom::GeometryFactory* Factory = geos::geom::GeometryFactory::getDefaultInstance();
 
-  geos::geom::Geometry* SU_coll = Factory->buildGeometry(&SU_vect); //FIXME
-  geos::geom::Geometry* RS_coll = Factory->buildGeometry(&RS_vect); //FIXME
+  geos::geom::Geometry* SU_coll = Factory->buildGeometry(&SU_vect);
+  geos::geom::Geometry* RS_coll = Factory->buildGeometry(&RS_vect);
 
   std::vector<geos::geom::LineString*>* Noded_lines = openfluid::landr::LandRTools::computeNodedLines(SU_coll, RS_coll);
 
@@ -325,11 +316,6 @@ BOOST_AUTO_TEST_CASE(check_getPolygonizedGeometry_simple)
   std::vector<geos::geom::Polygon*> NewPolys;
   std::vector<const geos::geom::LineString*> Dangles;
   openfluid::landr::LandRTools::polygonizeGeometry(Noded, NewPolys, Dangles);
-
-//  for (unsigned int i = 0; i < NewPolys.size(); i++)
-//    std::cout << NewPolys.at(i)->toString() << std::endl;
-//  for (unsigned int i = 0; i < Dangles.size(); i++)
-//    std::cout << Dangles.at(i)->toString() << std::endl;
 
   BOOST_CHECK_EQUAL(NewPolys.size(), 7);
   BOOST_CHECK_EQUAL(Dangles.size(), 2);
@@ -373,12 +359,12 @@ BOOST_AUTO_TEST_CASE(check_polygonize_simple_2SU2RS)
   std::vector<geos::geom::Geometry*> SU_vect;
   SU_vect.assign(SU_lines.begin(), SU_lines.end());
   SU_vect.insert(SU_vect.end(), SU2_lines.begin(), SU2_lines.end());
-  geos::geom::Geometry* SU_coll = Factory->buildGeometry(&SU_vect); //FIXME
+  geos::geom::Geometry* SU_coll = Factory->buildGeometry(&SU_vect);
 
   std::vector<geos::geom::Geometry*> RS_vect;
   RS_vect.assign(RS_lines.begin(), RS_lines.end());
   RS_vect.insert(RS_vect.end(), RS2_lines.begin(), RS2_lines.end());
-  geos::geom::Geometry* RS_coll = Factory->buildGeometry(&RS_vect); //FIXME
+  geos::geom::Geometry* RS_coll = Factory->buildGeometry(&RS_vect);
 
   // TODO Check why and if this is the correct geos version change
 #if !GEOS_VERSION_GREATER_OR_EQUAL_3_3_2
@@ -395,10 +381,6 @@ BOOST_AUTO_TEST_CASE(check_polygonize_simple_2SU2RS)
   std::vector<const geos::geom::LineString*> Dangles;
   openfluid::landr::LandRTools::polygonizeGeometry(Noded, NewPolys, Dangles);
 
-//  for (unsigned int i = 0; i < NewPolys.size(); i++)
-//    std::cout << NewPolys.at(i)->toString() << std::endl;
-//  for (unsigned int i = 0; i < Dangles.size(); i++)
-//    std::cout << Dangles.at(i)->toString() << std::endl;
 
   BOOST_CHECK_EQUAL(NewPolys.size(), 18);
   BOOST_CHECK_EQUAL(Dangles.size(), 3);
@@ -436,18 +418,16 @@ BOOST_AUTO_TEST_CASE(check_polygonize_medium2Polys)
 
   std::vector<geos::geom::Geometry*> SU_vect;
   SU_vect.assign(SU_lines.begin(), SU_lines.end());
-  geos::geom::Geometry* SU_coll = Factory->buildGeometry(&SU_vect); //FIXME
+  geos::geom::Geometry* SU_coll = Factory->buildGeometry(&SU_vect);
 
   std::vector<geos::geom::Geometry*> SU2_vect;
   SU2_vect.assign(SU2_lines.begin(), SU2_lines.end());
-  geos::geom::Geometry* SU2_coll = Factory->buildGeometry(&SU2_vect); //FIXME
+  geos::geom::Geometry* SU2_coll = Factory->buildGeometry(&SU2_vect);
 
   std::vector<geos::geom::LineString*>* Noded_lines =
       openfluid::landr::LandRTools::computeNodedLines(SU_coll, SU2_coll);
 
   BOOST_CHECK_EQUAL(Noded_lines->size(), 51);
-//  for (unsigned int i = 0; i < Noded_lines->size(); i++)
- //   std::cout << Noded_lines->at(i)->toString() << std::endl;
 
   std::vector<geos::geom::Geometry*> Noded;
   Noded.assign(Noded_lines->begin(), Noded_lines->end());
@@ -460,11 +440,6 @@ BOOST_AUTO_TEST_CASE(check_polygonize_medium2Polys)
   BOOST_CHECK_EQUAL(TheDangles.size(), 0);
 
   BOOST_CHECK_EQUAL(ThePolygons.size(), 24);
-
-//  for (unsigned int i = 0; i < ThePolygons.size(); i++)
- //   std::cout << ThePolygons.at(i)->toString() << std::endl;
-//  for (unsigned int i = 0; i < TheDangles.size(); i++)
-//    std::cout << TheDangles.at(i)->toString() << std::endl;
 
   for (unsigned int i = 0; i < ThePolygons.size(); i++)
   {
@@ -500,8 +475,8 @@ BOOST_AUTO_TEST_CASE(check_polygonize_medium2Polys1Line)
 
   const geos::geom::GeometryFactory* Factory = geos::geom::GeometryFactory::getDefaultInstance();
 
-  geos::geom::Geometry* Field_coll = Factory->buildGeometry(&Fields); //FIXME
-  geos::geom::Geometry* Soil_coll = Factory->buildGeometry(&Soils); //FIXME
+  geos::geom::Geometry* Field_coll = Factory->buildGeometry(&Fields);
+  geos::geom::Geometry* Soil_coll = Factory->buildGeometry(&Soils);
 
   std::vector<geos::geom::LineString*>* Poly_lines =
     openfluid::landr::LandRTools::computeNodedLines(Field_coll, Soil_coll);
@@ -510,7 +485,7 @@ BOOST_AUTO_TEST_CASE(check_polygonize_medium2Polys1Line)
 
   std::vector<geos::geom::Geometry*> Poly_vect;
   Poly_vect.assign(Poly_lines->begin(), Poly_lines->end());
-  geos::geom::Geometry* Poly_coll = Factory->buildGeometry(&Poly_vect); //FIXME
+  geos::geom::Geometry* Poly_coll = Factory->buildGeometry(&Poly_vect);
 
   // TODO Check why and if this is the correct geos version change
 #if !GEOS_VERSION_GREATER_OR_EQUAL_3_3_2
@@ -543,10 +518,6 @@ BOOST_AUTO_TEST_CASE(check_polygonize_medium2Polys1Line)
 
   BOOST_CHECK_EQUAL(ThePolygons.size(), 29);
 
-//  for (unsigned int i = 0; i < ThePolygons.size(); i++)
-//    std::cout << ThePolygons.at(i)->toString() << std::endl;
-//  for (unsigned int i = 0; i < TheDangles.size(); i++)
-//    std::cout << TheDangles.at(i)->toString() << std::endl;
 
   for (unsigned int i = 0; i < ThePolygons.size(); i++)
   {
@@ -589,8 +560,8 @@ BOOST_AUTO_TEST_CASE(check_computeNodedLines_virtual)
   const geos::geom::GeometryFactory* Factory =
       geos::geom::GeometryFactory::getDefaultInstance();
 
-  geos::geom::Geometry* Field_coll = Factory->buildGeometry(&Fields); //FIXME
-  geos::geom::Geometry* Soil_coll = Factory->buildGeometry(&Soils); //FIXME
+  geos::geom::Geometry* Field_coll = Factory->buildGeometry(&Fields);
+  geos::geom::Geometry* Soil_coll = Factory->buildGeometry(&Soils);
 
   double snapTolerance = 0.2;
 
@@ -598,19 +569,15 @@ BOOST_AUTO_TEST_CASE(check_computeNodedLines_virtual)
       openfluid::landr::LandRTools::computeNodedLines(Field_coll, Soil_coll,snapTolerance);
 
   BOOST_CHECK_EQUAL(NodedPolys->size(), 58);
- //   for (unsigned int i = 0; i < NodedPolys->size(); i++)
- //     std::cout << NodedPolys->at(i)->toString() << std::endl;
-
+ 
   std::vector<geos::geom::Geometry*> Polys;
   Polys.assign(NodedPolys->begin(), NodedPolys->end());
-  geos::geom::Geometry* Polys_coll = Factory->buildGeometry(&Polys); //FIXME
+  geos::geom::Geometry* Polys_coll = Factory->buildGeometry(&Polys);
 
   std::vector<geos::geom::LineString*>* NodedAll =
       openfluid::landr::LandRTools::computeNodedLines(Polys_coll, Reach_coll,snapTolerance);
 
   BOOST_CHECK_EQUAL(NodedAll->size(), 59);
-  //  for (unsigned int i = 0; i < NodedAll->size(); i++)
-  //    std::cout << NodedAll->at(i)->toString() << std::endl;
 
   std::vector<geos::geom::Geometry*> All;
   All.assign(NodedAll->begin(), NodedAll->end());
@@ -621,12 +588,8 @@ BOOST_AUTO_TEST_CASE(check_computeNodedLines_virtual)
   openfluid::landr::LandRTools::polygonizeGeometry(All, ThePolygons, TheDangles);
 
   BOOST_CHECK_EQUAL(TheDangles.size(), 0);
-  //  for (unsigned int i = 0; i < TheDangles->size(); i++)
-  //    std::cout << TheDangles->at(i)->toString() << std::endl;
 
   BOOST_CHECK_EQUAL(ThePolygons.size(), 25);
-  //  for (unsigned int i = 0; i < ThePolygons->size(); i++)
-  //    std::cout << ThePolygons->at(i)->toString() << std::endl;
 
   for (unsigned int i = 0; i < ThePolygons.size(); i++)
   {
@@ -664,8 +627,8 @@ BOOST_AUTO_TEST_CASE(check_computeNodedLines_virtual_snap)
 
   const geos::geom::GeometryFactory* Factory = geos::geom::GeometryFactory::getDefaultInstance();
 
-  geos::geom::Geometry* Field_coll = Factory->buildGeometry(&Fields); //FIXME
-  geos::geom::Geometry* Soil_coll = Factory->buildGeometry(&Soils); //FIXME
+  geos::geom::Geometry* Field_coll = Factory->buildGeometry(&Fields);
+  geos::geom::Geometry* Soil_coll = Factory->buildGeometry(&Soils);
 
   double snapTolerance = 0.2;
 
@@ -741,8 +704,7 @@ BOOST_AUTO_TEST_CASE(check_intersect_2Polygons)
 
   std::vector<geos::geom::Polygon*> IntersectPolys  =
       openfluid::landr::LandRTools::computeIntersectPolygons(Geom1, Geom2);
-//  for (unsigned int i = 0; i < IntersectPolys.size(); i++)
-//    std::cout << IntersectPolys.at(i)->toString() << std::endl;
+
   BOOST_CHECK_EQUAL(IntersectPolys.size(), 6);
 
   delete Vect;
@@ -990,18 +952,17 @@ BOOST_AUTO_TEST_CASE(check_cleanLines_after_Intersect2Polys)
 
   GeomPolygons.assign(IntersectPolys.begin(), IntersectPolys.end());
   Factory = geos::geom::GeometryFactory::getDefaultInstance();
-  GeomPolygons_coll = Factory->buildGeometry(&GeomPolygons); //FIXME
+  GeomPolygons_coll = Factory->buildGeometry(&GeomPolygons);
 
 
   std::vector<geos::geom::LineString*> PolyRings;
   unsigned int i2End=GeomPolygons_coll->getNumGeometries();
   for (unsigned int i = 0; i < i2End; i++)
   {
-    /*PolyRings.push_back(const_cast<geos::geom::LineString*>(dynamic_cast<geos::geom::Polygon*>
+    // FIXME The following instruction does not compile
+    PolyRings.push_back(const_cast<geos::geom::LineString*>(dynamic_cast<geos::geom::Polygon*>
                           (const_cast<geos::geom::Geometry*>(GeomPolygons_coll->getGeometryN(i)))->
                              getExteriorRing()));
-                             invalid const_cast from type ‘const geos::geom::LinearRing*’ to type ‘geos::geom::LineString*
-                             */ //FIXME
   }
 
 
